@@ -196,14 +196,14 @@
   }
   function messageHtml(m){return `<div class="msg ${m.sender_id===user.id?'mine':''}"><div>${escHtml(m.body)}</div><div class="meta">${new Date(m.created_at).toLocaleString('fa-IR')} ${m.read_at?'· خوانده‌شده':''}</div></div>`;}
   async function loadChat(){
-    const {student}=await getStudentId();
+    const student=await getStudentId();
     const {data,error}=await client.from('messages').select('*').or(`and(sender_id.eq.${user.id},receiver_id.eq.${student.id}),and(sender_id.eq.${student.id},receiver_id.eq.${user.id})`).order('created_at');
     if(error)throw error;chatRows=data||[];
   }
   async function bindChat(){
     $('#chat-send',adminRoot).onclick=async()=>{
       const body=$('#chat-text',adminRoot).value.trim();if(!body)return;
-      const {student}=await getStudentId();const {error}=await client.from('messages').insert({sender_id:user.id,receiver_id:student.id,body});
+      const student=await getStudentId();const {error}=await client.from('messages').insert({sender_id:user.id,receiver_id:student.id,body});
       if(error){alert(error.message);return;}$('#chat-text',adminRoot).value='';await loadChat();$('#chat-window',adminRoot).innerHTML=chatRows.map(messageHtml).join('');$('#chat-window',adminRoot).scrollTop=999999;
     };
     $('#chat-text',adminRoot).onkeydown=e=>{if(e.key==='Enter')$('#chat-send',adminRoot).click();};
@@ -217,7 +217,7 @@
   }
   function noteHtml(n){return `<div class="admin-row"><div class="grow"><b>${escHtml(n.body)}</b><div class="muted">${new Date(n.created_at).toLocaleString('fa-IR')} · ${n.visible_to_student?'قابل مشاهده برای دانش‌آموز':'خصوصی مدیر'}</div></div></div>`;}
   async function loadNotes(){
-    const {student}=await getStudentId();
+    const student=await getStudentId();
     const {data,error}=await client.from('admin_notes').select('*').eq('student_id',student.id).order('created_at',{ascending:false});
     if(error)throw error;notesRows=data||[];
   }
@@ -232,7 +232,7 @@
     if(currentAdminTab==='notes'){
       $('#note-save',adminRoot).onclick=async()=>{
         const body=$('#note-body',adminRoot).value.trim();if(!body)return;
-        const {student}=await getStudentId();const visible=$('#note-visible',adminRoot).checked;
+        const student=await getStudentId();const visible=$('#note-visible',adminRoot).checked;
         const {error}=await client.from('admin_notes').insert({student_id:student.id,author_id:user.id,body,visible_to_student:visible});
         if(error){alert(error.message);return;}await loadNotes();renderAdmin();
       };
